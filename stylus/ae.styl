@@ -1,0 +1,281 @@
+// out: ../css/ae.css, compress: false
+
+/*
+font-family: 'Quicksand', sans-serif;
+font-family: 'Kanit', sans-serif;
+font-family: 'Catamaran', sans-serif;
+font-family: 'Yantramanav', sans-serif;
+font-family: 'Londrina Outline', cursive;
+font-family: 'Almendra Display', cursive;
+*/
+
+@require "ae-util"
+
+
+category(1, theme-blue)
+category(2, theme-red)
+category(3, theme-yellow)
+
+
+body
+  margin: 0
+  background-color: theme-white
+
+a
+  color: inherit
+  text-decoration: none
+
+
+// TOP-BAR RULES
+
+.top-bar
+  sans(Kanit, s: bar-font-size)
+  clr(fg: theme-white, bg: theme-blue)
+  height: bar-height
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  transition: height fold-time ease-in-out
+  overflow: hidden
+  &.tinted
+  &.tinted .top-bar-contents
+    clr(bg: theme-dark-gray)
+  .top-bar-contents
+    clr(bg: theme-blue)
+    height: bar-height
+  .top-bar-contents, .inner-body
+    overflow: visible
+  .about
+    display: none
+    text-align: justify
+    p
+      padding-left: 125px
+    .aside
+      sans('Almendra Display')
+    .digital
+      font-family: Consolas, monaco, monospace;
+  &.unfolded
+    z-index: 100
+    .ae
+      position: relative
+    .about
+      display: block
+    .top-bar-contents
+      position: absolute
+      bottom: 0
+      width: 100%
+
+.byline
+  interface-text()
+
+.textmark
+  sans(Yantramanav)
+  interface-link()
+  bar-item(left)
+  hover-glow(theme-white, theme-black, glow-spread: 7px)
+
+.ae
+  sans(Yantramanav, w: bold)
+  clr(fg: theme-blue, bg: theme-white)
+  interface-link()
+  bar-item(left)
+  hover-glow(theme-blue, theme-blue, glow-spread: 10px)
+  padding: 0 5px 0 5px
+  margin-right: 5px
+
+
+.parenthetical
+  hover-glow(theme-white, theme-black, glow-spread: 7px)
+  margin-left: 2em
+
+.about-link
+  sans(Quicksand, s: 0.6em)
+  interface-link()
+  bar-item(right)
+  hover-glow(theme-white, theme-black, glow-spread: 7px)
+  padding: 0 2.5px 0 2.5px
+
+
+// BADGE RULES
+
+.inner-body
+  overflow: hidden
+  margin: 0 auto 0 auto
+
+bwfw(w, m, c = 3)
+  (w / c) - (m * 2)
+
+bw1 = bwfw(900px, 20px)
+bh1 = ratio(bw1, badge-ratio)
+
+bw2 = bwfw(700px, 15px)
+bh2 = ratio(bw2, badge-ratio)
+
+bw3 = bwfw(500px, 10px, c: 2)
+bh3 = ratio(bw3, badge-ratio)
+
+@media (min-width: 1000px)
+  .inner-body
+    width: 900px
+  .border
+    inset-badge(bw1, bh1, 2.5px, 20px, 0.15, 0.9)
+  .parenthetical
+    bar-item(left, 0.44, lines: 2)
+    font-size: 0.55em
+  .fullscreen
+    .badge .inset ul
+      width: 900px * 0.2
+    .badge .inset .contents
+      width: 900px * 0.8
+      margin-left: 900px * 0.2
+
+@media (min-width: 800px) and (max-width: 999px)
+  .inner-body
+    width: 700px
+  .border
+    inset-badge(bw2, bh2, 2.5px, 15px, 0.15, 0.9)
+  .parenthetical
+    bar-item(left, 0.4, lines: 2)
+    font-size: 0.45em
+  .fullscreen
+    .badge .inset ul
+      width: 700px * 0.2
+    .badge .inset .contents
+      width: 700px * 0.8
+      margin-left: 700px * 0.2
+
+@media (max-width: 799px)
+  .inner-body
+    width: 500px
+  .border
+    inset-badge(bw3, bh3, 2.5px, 10px, 0.15, 0.9)
+  .parenthetical
+    bar-item left
+    font-size: 0.45em
+  .contact-info
+    display: none
+  .fullscreen
+    .badge .inset ul
+      width: 500px * 0.2
+    .badge .inset .contents
+      width: 500px * 0.8
+      margin-left: 500px * 0.2
+
+.badges
+  padding-top: 20px + bar-height
+
+.border
+  &.full-link
+    interface-link()
+  float: left
+  overflow: hidden
+  &:hover .badge
+    clr(bg: theme-dark-gray)
+  &:hover .icon
+    visibility: visible
+  &:hover .inset
+    clr(fg: theme-gray)
+  &.fullscreen
+    width: 100%
+    position: absolute
+    top: bar-height
+    left: 0
+    z-index: 99
+    margin: 0
+    .badge
+      clr(bg: theme-dark-gray)
+      width: 100%
+    .badge .inset
+      width: 100%
+      overflow-y: scroll
+    .badge .inset .inset-body
+      overflow: visible
+    .badge .inset ul
+      padding-top: 30px;
+      position: fixed
+    .badge .inset .contents
+      float: left
+      padding-top: 30px;
+      p, h2
+        margin-top: 0;
+    .badge .label
+      width: 100%
+    .inset
+      clr(fg: theme-gray)
+    .badge .label .label-text
+      padding-right: 0
+    .badge .label .label-small
+      padding-right: 5px
+
+.badge
+  sans(Kanit, s: 20px)
+  clr(fg: theme-gray)
+  text-align: right
+  transition: background-color 0.25s ease-in-out
+
+.inset
+  clr(bg: theme-gray)
+  text-align: left
+  transition: background-color 0.25s ease-in-out
+  transition: color 0.15s ease-in-out
+  .contents
+    display: none
+    .poem
+      pre, code
+        sans(Kanit)
+    .info
+      float: right
+      width: 200px
+      font-size: 0.75em
+  ul
+    padding: 0
+    padding-top: 0.1em
+    margin: 0
+  li
+    interface-link()
+    list-style: none;
+    padding-top: 0.1em
+    padding-bottom: 0.1em
+    padding-left: 0.5em
+    transition: background-color 0.15s ease-in-out
+    &:before
+      content: "> "
+      font-family: Consolas, monaco, monospace;
+      transition: color 0.15s ease-in-out
+    &:hover:before
+      content: "@ "
+
+
+.chloroform-logo
+  width: 100px
+  height: 100px
+  margin: 72.5px
+
+.label
+  interface-link()
+  .label-controls
+    display: none
+    float: left
+    .button
+      float: left
+      padding-left: 10px
+      padding-right: 10px
+  .label-text
+    float: right
+    padding-right: 5px
+    display: block
+  .subtitle
+    normal-text()
+    .seperator
+      padding-left: 15px
+      padding-right: 15px
+  .label-small
+    sans(Quicksand, s: 0.6em)
+
+
+// TREE RULES
+
+.proc-tree
+  width: 100%
+  height: 500px

@@ -1,0 +1,20 @@
+<div aeid="{{id}}" aetitle="{{title}}" aeslug="{{slug}}"{{#class}} class="{{class}}"{{/class}}>
+<h2>{{title}}</h2>
+<table class="info">
+{{#boxed}}
+  <tr>
+    <td>{{k}}</td>
+    <td>{{v}}</td>
+  </tr>
+{{/boxed}}
+{{#links}}
+  <tr>
+    <td colspan="2"><a href="{{v}}">{{k}}</a></td>
+  </tr>
+{{/links}}
+{{#sections.margin}}
+<tr><td colspan="2">{{&sections.margin}}</td></tr>
+{{/sections.margin}}
+</table>
+{{&body}}
+</div>

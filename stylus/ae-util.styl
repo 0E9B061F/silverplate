@@ -1,0 +1,164 @@
+theme-blue      = #6e7fd2
+theme-red       = #de2657
+theme-yellow    = #dfae10
+theme-gray      = #efefef
+theme-white     = #fafafa
+theme-black     = #191919
+theme-dark-gray = #252525
+
+bar-height = 50px
+bar-border = 5px
+bar-inner-height = bar-height - bar-border
+bar-font-size = bar-height * 0.62
+badge-ratio = 1.2
+fold-time = 0.5s
+
+
+clr(fg = false, bg = false)
+  if fg
+    color: fg
+  if bg
+    background-color: bg
+
+fnt(family = false, size = false, weight = false)
+  if family
+    font-family: family
+  if size
+    font-size: size
+  if weight
+    font-weight: weight
+
+sans(target, s = false, w = false)
+  target = target, Arial, sans-serif
+  fnt(family: target, size: s, weight: w)
+
+roman(target, s = false, w = false)
+  target = target, Times, serif
+  fnt(family: target, size: s, weight: w)
+
+unselectable-text()
+  user-select: none
+  -moz-user-select: none
+  -webkit-user-select: none
+  -ms-user-select: none
+
+interface-text()
+  unselectable-text()
+  cursor: default
+
+interface-link()
+  unselectable-text()
+  cursor: pointer
+
+normal-text()
+  user-select: text
+  -moz-user-select: text
+  -webkit-user-select: text
+  -ms-user-select: text
+  cursor: text
+
+clip()
+  -webkit-clip-path: polygon(arguments)
+  clip-path: polygon(arguments)
+
+hover-glow(hilight-fg, glow-color, color-time = 0.3s, glow-time = 0.6s, glow-spread = 14px, fg = false)
+  &:hover
+    color: hilight-fg
+    text-shadow: 0px 0px glow-spread glow-color
+  if fg
+    color: fg
+  transition: color color-time ease-in-out, text-shadow glow-time ease-in-out
+
+bar-item(side, h = 1, lines = 1)
+  lh = bar-height * h
+  r  = (bar-height - (lh * lines)) / 2
+  display: block
+  float: side
+  height: bar-height - (r*2)
+  line-height: lh
+  padding-top: r
+  padding-bottom: r
+
+
+category(n, c)
+  .tm-c{n}
+    background-color: c !important
+    color: theme-white !important
+  .c{n}
+    ::-webkit-scrollbar
+      position: absolute
+      right: 0
+      width: 15px;
+    ::-webkit-scrollbar-track
+      clr(bg: c - #222)
+    ::-webkit-scrollbar-thumb
+      clr(bg: c + #222)
+    .badge
+      clr(bg: c)
+    .inset
+      clr(fg: c)
+      li:hover
+        clr(bg: c - #111)
+      li:before
+        clr(fg: c + #666)
+    .icon
+      clr(fg: c)
+    &:hover .inset
+      clr(bg: c)
+    &:hover .inset li:before
+      clr(fg: c - #222)
+    .inset li:hover:before
+      clr(fg: theme-dark-gray)
+    &.fullscreen
+      .inset
+        clr(bg: c)
+      .inset li:before
+        clr(fg: c - #222)
+
+inset-badge(w, h, i, m, cc, ihp, hf = 0.2, tt = 0.15s, t = ease-in-out)
+  o   = 0px
+  di  = i * 2
+  hcc = cc * hf
+  hc  = w - (w * cc)
+  vc  = h * cc
+  hhc = w - (w * hcc)
+  hvc = h * hcc
+  iw  = w - i
+  hiw = w - di
+  ih  = h * ihp
+  lh  = h - ih
+  ihc = hc - i
+  ivc = vc + i
+  ls  = lh * 0.65
+  lr  = lh - ls
+  lpb = lr * 0.2
+  lpt = lr - lpb
+  width: w
+  height: h
+  margin: m
+  &:hover .badge
+    clip o o, hhc o, w hvc, w h, o h
+  &:hover .badge .inset
+    clip di di, ihc di, hiw ivc, hiw ih - i, di ih - i
+  .badge
+    width: w
+    height: h
+    clip o o, hc o, w vc, w h, o h
+    transition: clip-path tt t
+    .inset
+      width: w
+      height: ih
+      clip i i, ihc i, iw ivc, iw ih, i ih
+      transition: clip-path tt linear
+    .label
+      width: w
+      height: lh
+      .label-text
+        font-size: ls
+        line-height: ls
+        height: ls
+        padding-top: lpt
+        padding-bottom: lpb
+
+ratio(w, r)
+  w * r
