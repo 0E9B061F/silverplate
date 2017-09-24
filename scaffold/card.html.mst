@@ -1,0 +1,22 @@
+<div aeparent="{{source_name}}" aecategory="{{category}}" class="border c{{category}} dynamic">
+  <div class="badge">
+    <div class="inset"><div class="inset-body">
+      <ul class="menu">
+        {{#links}}
+          <li aedest="{{source}}" aeanchor="{{id}}">{{slug}}</li>
+        {{/links}}
+      </ul>
+      <div aesource="{{source_name}}" class="contents">
+        {{#precompiled}}
+          {{&item}}
+        {{/precompiled}}
+      </div>
+    </div></div>
+    <div class="label"><div class="label-body">
+      <div class="button close-button label-controls label-text" aedest=""><span class="icon ion-close"></span></div>
+      <div class="button up-button label-controls label-text" aedest=".."><span class="icon ion-arrow-up-b"></span></div>
+      <span class="subtitle label-text"></span>
+      <span class="title label-text" aedest="{{source_name}}">{{#pretitle}}<span class="label-small">{{pretitle}}:</span>{{/pretitle}}{{source_title}}</span>
+    </div></div>
+  </div>
+</div>

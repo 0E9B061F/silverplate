@@ -1,5 +1,5 @@
 {{{
-  "name": "down. translated.",
+  "title": "down. translated.",
   "category": "1",
   "template": "default",
   "cardtype": "list"

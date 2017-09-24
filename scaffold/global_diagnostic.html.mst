@@ -1,0 +1,6 @@
+<p class="global-diagnostic diagnostic">
+  <span class="icon ion-stats-bars"></span>&ensp;
+  pages: <span class="data">{{stats.total_pages}}</span> / sources: <span class="data">{{stats.total_sources}}</span> / items: <span class="data">{{stats.total_items}}</span> / compile time: <span class="data">{{stats.compile_time}}ms</span>
+  <br/>&ensp;<span class="icon ion-stats-bars"></span>&ensp;
+  size: <span class="start-size data">0 B</span> + <span class="size-change data">0 B</span> = <span class="html-size data">0 B</span> / <span class="data"><span class="word-count">0</span> words</span> / <span class="data"><span class="image-count">0</span> images</span> / <span class="data"><span class="request-count">0</span> requests</span> / loaded <span class="data"><span class="item-count data">0</span> items</span> / <span class="data"><span class="wait-time">0ms</span></span> waited (<span class="data"><span class="average-wait-time">0ms</span></span>/load)
+</p>

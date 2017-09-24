@@ -12,10 +12,12 @@
   "author": "aetherised",
   "license": "ISC",
   "dependencies": {
+    "clipboard": "^1.7.1",
     "jquery": "^3.2.1",
     "markdown": "^0.5.0",
     "marked": "^0.3.6",
     "mustache": "^2.3.0",
-    "stylus": "^0.54.5"
+    "stylus": "^0.54.5",
+    "urijs": "^1.18.12"
   }
 }

@@ -1,5 +1,5 @@
 {{{
-  "name": "Majestic",
+  "title": "Majestic",
   "category": "2",
   "template": "default",
   "cardtype": "image"

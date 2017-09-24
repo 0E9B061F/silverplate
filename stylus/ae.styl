@@ -24,9 +24,35 @@ body
 a
   color: inherit
   text-decoration: none
-
+  transition: background 0.2s linear
 
 // TOP-BAR RULES
+
+.diagnostic
+  display: none
+  text-align: right
+
+.global-diagnostic
+  sans(Kanit, s: 20px)
+  position: absolute
+  top: bar-height
+  right: 15px
+  z-index: 101
+  padding-top: 3px
+  padding-bottom: 3px
+  margin-top: 0
+  margin-bottom: 0
+  display: block
+  width: 100%
+  br
+    display: none
+
+body[ae-mode="page"]
+  .global-diagnostic br
+    display: inline
+
+.item[aeorigin="preloaded"] .times
+  display: none
 
 .top-bar
   sans(Kanit, s: bar-font-size)
@@ -36,7 +62,8 @@ a
   top: 0
   left: 0
   width: 100%
-  transition: height fold-time ease-in-out
+  &.dynamic
+    transition: height fold-time ease-in-out
   overflow: hidden
   &.tinted
   &.tinted .top-bar-contents
@@ -46,8 +73,9 @@ a
     height: bar-height
   .top-bar-contents, .inner-body
     overflow: visible
-  .about
+  .pages .ae-page
     display: none
+  .ae-page
     text-align: justify
     p
       padding-left: 125px
@@ -59,15 +87,30 @@ a
     z-index: 100
     .ae
       position: relative
-    .about
-      display: block
     .top-bar-contents
       position: absolute
       bottom: 0
       width: 100%
 
+.ae-page.displayed
+  display: block !important
+
+body[ae-mode="item"] .focused .item-diagnostic
+  display: block
+
+body[ae-mode="page"] .global-diagnostic
+  top: 0
+  right: 0
+
+body[ae-mode="page"][ae-diagnostic-mode="true"] .pages
+  padding-top: 15px
+
+body[ae-diagnostic-mode="true"] .global-diagnostic
+  display: block
+
 .byline
   interface-text()
+  text-decoration: none
 
 .textmark
   sans(Yantramanav)
@@ -89,12 +132,25 @@ a
   hover-glow(theme-white, theme-black, glow-spread: 7px)
   margin-left: 2em
 
-.about-link
+.telephone
+  cursor: pointer
+  text-decoration: none
+
+.big-page-link
   sans(Quicksand, s: 0.6em)
   interface-link()
   bar-item(right)
   hover-glow(theme-white, theme-black, glow-spread: 7px)
   padding: 0 2.5px 0 2.5px
+
+.close-page-link
+  display: none
+
+body[ae-mode="page"]
+  .close-page-link
+    display: block
+  .about-link
+    display: none
 
 
 // BADGE RULES
@@ -124,11 +180,12 @@ bh3 = ratio(bw3, badge-ratio)
     bar-item(left, 0.44, lines: 2)
     font-size: 0.55em
   .fullscreen
-    .badge .inset ul
-      width: 900px * 0.2
+    .badge .inset .menu
+      width: (900px * 0.25) - 15
+      margin-right: 15px
     .badge .inset .contents
-      width: 900px * 0.8
-      margin-left: 900px * 0.2
+      width: 900px * 0.75
+      margin-left: 900px * 0.25
 
 @media (min-width: 800px) and (max-width: 999px)
   .inner-body
@@ -139,11 +196,11 @@ bh3 = ratio(bw3, badge-ratio)
     bar-item(left, 0.4, lines: 2)
     font-size: 0.45em
   .fullscreen
-    .badge .inset ul
-      width: 700px * 0.2
+    .badge .inset .menu
+      width: 700px * 0.25
     .badge .inset .contents
-      width: 700px * 0.8
-      margin-left: 700px * 0.2
+      width: 700px * 0.75
+      margin-left: 700px * 0.25
 
 @media (max-width: 799px)
   .inner-body
@@ -156,11 +213,11 @@ bh3 = ratio(bw3, badge-ratio)
   .contact-info
     display: none
   .fullscreen
-    .badge .inset ul
-      width: 500px * 0.2
+    .badge .inset .menu
+      width: 500px * 0.25
     .badge .inset .contents
-      width: 500px * 0.8
-      margin-left: 500px * 0.2
+      width: 500px * 0.75
+      margin-left: 500px * 0.25
 
 .badges
   padding-top: 20px + bar-height
@@ -191,9 +248,10 @@ bh3 = ratio(bw3, badge-ratio)
       overflow-y: scroll
     .badge .inset .inset-body
       overflow: visible
-    .badge .inset ul
+    .badge .inset .menu
       padding-top: 30px;
       position: fixed
+      font-size: 0.85em
     .badge .inset .contents
       float: left
       padding-top: 30px;
@@ -207,6 +265,8 @@ bh3 = ratio(bw3, badge-ratio)
       padding-right: 0
     .badge .label .label-small
       padding-right: 5px
+    .inset li
+      padding-left: 0
 
 .badge
   sans(Kanit, s: 20px)
@@ -221,13 +281,51 @@ bh3 = ratio(bw3, badge-ratio)
   transition: color 0.15s ease-in-out
   .contents
     display: none
+    font-size: 0.9em
+    .item
+      margin-bottom: 30px
+
     .poem
       pre, code
         sans(Kanit)
     .info
       float: right
-      width: 200px
-      font-size: 0.75em
+      width: 250px
+      font-size: 0.8em
+      margin-left: 15px
+      margin-bottom: 15px
+      .key
+        clr(fg: theme-blue + #666)
+        vertical-align: top
+        width: auto
+        padding-left: 0
+        padding-right: 10px
+      .links-label
+        padding-top: 10px
+        display: block
+      .boxed
+        border-collapse: collapse
+        border: 0
+        padding: 0
+        margin: 0
+    .aside
+      font-size: 0.85em
+      margin-right: 100px
+      margin-top: 40px
+      margin-bottom: 20px
+      .aside-text
+        padding-left: 10px
+        padding-top: 5px
+        padding-bottom: 5px
+        p:last-child
+          margin-bottom: 0
+      .aside-label
+        text-align: right
+    .item-diagnostic
+      display: none
+      position: absolute
+      bottom: 50px
+      right: 15px
   ul
     padding: 0
     padding-top: 0.1em
@@ -240,11 +338,18 @@ bh3 = ratio(bw3, badge-ratio)
     padding-left: 0.5em
     transition: background-color 0.15s ease-in-out
     &:before
-      content: "> "
-      font-family: Consolas, monaco, monospace;
+      content: ">\2009"
+      font-family: Consolas, monaco, monospace
       transition: color 0.15s ease-in-out
     &:hover:before
-      content: "@ "
+      content: "@\2009"
+
+.diagnostic
+  font-size: 0.8em
+  padding-right: 15px
+  padding-left: 20px
+  .data
+    font-family: Consolas, monaco, monospace
 
 
 .chloroform-logo
@@ -254,18 +359,24 @@ bh3 = ratio(bw3, badge-ratio)
 
 .label
   interface-link()
+  .button
+    display: block
+    padding-left: 10px
+    padding-right: 10px
   .label-controls
     display: none
-    float: left
-    .button
-      float: left
-      padding-left: 10px
-      padding-right: 10px
-  .label-text
+  .up-button
     float: right
-    padding-right: 5px
+  .close-button
+    float: left
+  .label-text
     display: block
+  .title
+    padding-right: 5px
+    float: right
   .subtitle
+    padding-right: 5px
+    float: right
     normal-text()
     .seperator
       padding-left: 15px

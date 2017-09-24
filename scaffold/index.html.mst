@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>AETHERISED</title>
+  <link href="vendor/ionicons.min.css" rel="stylesheet" type="text/css">
+  <link href="css/ae.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Almendra+Display|Catamaran:100|Kanit:100|Londrina+Outline|Quicksand:300|Yantramanav:100" rel="stylesheet">
+</head>
+<body ae-mode="root" ae-active-source="" ae-active-page="" ae-active-anchor="" ae-diagnostic-mode="true"{{#stats.unhidden_pages}} ae-has-pages="true"{{/stats.unhidden_pages}}>
+
+<div class="top-bar folded">
+  <div class="pages">
+    {{#manifest.single_sources}}
+      {{&html}}
+    {{/manifest.single_sources}}
+  </div>
+  <div class="top-bar-contents"><div class="inner-body">
+    <span class="textmark" aedest=""><span class="ae">ÆTHER</span>ised</span>
+    <span class="parenthetical">
+      <abbr title="NB: may sometimes include things by other people. Don't be so literal." class="byline">(things by nathan gifford)<br/></abbr>
+      <span class="contact-info">
+        <span class="icon ion-social-twitter-outline"></span> @aetherised
+        &emsp;<span class="icon ion-ios-email-outline"></span> aetherised@gmail.com
+        &emsp;<span class="icon ion-ios-telephone-outline"></span>&thinsp;<span class="icon ion-ios-chatboxes-outline"></span> <abbr class="telephone copyable" data-clipboard-text="(813) 324-7591" title="Click to copy number">(813) 324-7591</abbr>
+      </span>
+    </span>
+    <span aedest="about" class="big-page-link about-link">ABOUT</span>
+    <span aedest="!!" class="big-page-link close-page-link">CLOSE</span>
+  </div></div>
+</div>
+
+<ul class="page-menu">
+  {{#unhidden}}
+  <li aedest="{{link}}" class="page-button">{{name}}</li>
+  {{/unhidden}}
+</ul>
+
+{{> global_diagnostic}}
+
+<div class="badges inner-body">
+  {{#cards}}
+    {{> card}}
+  {{/cards}}
+</div>
+
+{{> manifest}}
+
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/mustache.min.js"></script>
+<script src="vendor/marked.min.js"></script>
+<script src="vendor/clipboard.min.js"></script>
+<script src="vendor/URI.min.js"></script>
+
+<script src="scripts/bytes.js"></script>
+<script src="scripts/ms.js"></script>
+<script src="scripts/wpm.js"></script>
+<script src="scripts/jmd.js"></script>
+<script src="scripts/logic.js"></script>
+
+</body>
+</html>

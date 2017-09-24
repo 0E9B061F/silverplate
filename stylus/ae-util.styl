@@ -1,3 +1,5 @@
+// main: ae.styl
+
 theme-blue      = #6e7fd2
 theme-red       = #de2657
 theme-yellow    = #dfae10
@@ -10,6 +12,8 @@ bar-height = 50px
 bar-border = 5px
 bar-inner-height = bar-height - bar-border
 bar-font-size = bar-height * 0.62
+menu-height = 20px
+total-top-height = bar-height + menu-height
 badge-ratio = 1.2
 fold-time = 0.5s
 
@@ -84,15 +88,25 @@ category(n, c)
   .tm-c{n}
     background-color: c !important
     color: theme-white !important
+  .diag-c{n}
+    clr(bg: c, fg: theme-white)
   .c{n}
+    iframe
+      clr(bg: c - #222)
+    .link-decorator
+      clr(fg: c + #444)
+    a:hover
+      clr(bg: c - #111)
+    .diagnostic a:hover
+      clr(bg: c - #222)
     ::-webkit-scrollbar
-      position: absolute
-      right: 0
       width: 15px;
     ::-webkit-scrollbar-track
       clr(bg: c - #222)
     ::-webkit-scrollbar-thumb
       clr(bg: c + #222)
+    .diagnostic
+      clr(bg: c)
     .badge
       clr(bg: c)
     .inset
@@ -101,7 +115,10 @@ category(n, c)
         clr(bg: c - #111)
       li:before
         clr(fg: c + #666)
-    .icon
+      .contents
+        .aside-text
+          border-left: 20px solid c - #111
+    .label .icon
       clr(fg: c)
     &:hover .inset
       clr(bg: c)
@@ -115,7 +132,7 @@ category(n, c)
       .inset li:before
         clr(fg: c - #222)
 
-inset-badge(w, h, i, m, cc, ihp, hf = 0.2, tt = 0.15s, t = ease-in-out)
+inset-badge(w, h, i, m, cc, ihp, hf = 0.2, tt = 0.25s, t = ease-in-out)
   o   = 0px
   di  = i * 2
   hcc = cc * hf
@@ -140,16 +157,19 @@ inset-badge(w, h, i, m, cc, ihp, hf = 0.2, tt = 0.15s, t = ease-in-out)
     clip o o, hhc o, w hvc, w h, o h
   &:hover .badge .inset
     clip di di, ihc di, hiw ivc, hiw ih - i, di ih - i
+  &.dynamic
+    .badge
+      transition: clip-path tt linear, width tt linear, height tt linear
+      .inset
+        transition: clip-path tt linear
   .badge
     width: w
     height: h
     clip o o, hc o, w vc, w h, o h
-    transition: clip-path tt t
     .inset
       width: w
       height: ih
       clip i i, ihc i, iw ivc, iw ih, i ih
-      transition: clip-path tt linear
     .label
       width: w
       height: lh

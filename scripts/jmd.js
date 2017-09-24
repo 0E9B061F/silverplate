@@ -1,5 +1,10 @@
 'use strict';
 
+if (typeof window === 'undefined') {
+  var marked = require('marked');
+}
+
+
 var parse_md = function(text) {
   console.log("parsed markdown");
   return marked(text);
@@ -57,4 +62,8 @@ var parse_jmd = function(text) {
     data.body = text;
   }
   return data;
+}
+
+if (typeof window === 'undefined') {
+  module.exports = parse_jmd;
 }

@@ -1,3 +1,5 @@
 node_modules/
 css/
 package-lock.json
+index.html
+source/manifest.json

@@ -1,0 +1,19 @@
+<div ae-manifest="root" class="manifest">
+  <!-- Global stats -->
+  {{#manifest.stats}}
+  <div ae-manifest-type="stat" ae-manifest-stat-name="{{name}}" ae-manifest-stat-value="{{value}}"></div>
+  {{/manifest.stats}}
+  <!-- Sources -->
+  {{#manifest.sources}}
+  <div ae-manifest-type="source" ae-source-item-count="{{item_count}}" ae-source-name="{{source_name}}" ae-path="{{&source_path}}" ae-category="{{category}}" ae-cardtype="{{cardtype}}" ae-template="{{template}}"></div>
+  {{/manifest.sources}}
+  <!-- Pages -->
+  {{#manifest.single_sources}}
+  <div ae-manifest-type="single-source" ae-source-name="{{source_name}}" ae-path="{{&source_path}}" ae-template="{{template}}"></div>
+  {{/manifest.single_sources}}
+  <!-- Templates -->
+  {{#manifest.templates}}
+  <div ae-manifest-type="template" ae-template-name="{{template_name}}" ae-path="{{&template_path}}"></div>
+  {{/manifest.templates}}
+</div>
+</body>

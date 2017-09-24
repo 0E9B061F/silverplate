@@ -1,0 +1,3 @@
+<div ae-page="{{name}}" class="ae-page {{name}}"><div class="inner-body">
+  {{&body}}
+</div></div>

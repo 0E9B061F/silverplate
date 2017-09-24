@@ -1,19 +1,19 @@
-{{{
-  "title": "Yo yoyo oyooy oyoyoyoy",
-  "slug": "Yo yoyo",
-  "boxed": [
-    {"k": "Author",    "v": "W. B. Yeats"},
-    {"k": "Published", "v": "November 1920"},
-    {"k": "Collected", "v": "1921"},
-    {"k": "From",      "v": "Michael Robartes and the Dancer"}
-  ],
-  "links": [
-    {"k": "Wikipedia - The Second Coming", "v": "https://en.wikipedia.org/wiki/The_Second_Coming_(poem)"},
-    {"k": "Wikipedia - Yeats", "v": "https://en.wikipedia.org/wiki/W._B._Yeats"}
-  ]
-}}}
+'use strict';
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus purus sapien, condimentum eu fermentum at, auctor ac sem. Cras egestas venenatis purus at commodo. Morbi venenatis auctor nibh nec mattis. Mauris feugiat quam metus, a egestas quam molestie vitae. Curabitur erat arcu, tempus iaculis augue nec, posuere ultricies eros. Mauris eu aliquet lacus. Phasellus sed malesuada lacus. Proin ullamcorper ligula ut elit ultrices, gravida consequat dui semper.
+// word length
+// sentence length
+// total length
+
+var ROOTTEXTS = 0;
+var SUBTEXTS = 0;
+var LONGWORD = 9;
+var VERYLONGWORD = 12;
+var LONGSENTENCE = 150;
+var VERYLONGSENTENCE = 225;
+var LONGPARAGRAPH = 700;
+var VERYLONGPARAGRAPH = 850;
+
+const TESTDATA = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus purus sapien, condimentum eu fermentum at, auctor ac sem. Cras egestas venenatis purus at commodo. Morbi venenatis auctor nibh nec mattis. Mauris feugiat quam metus, a egestas quam molestie vitae. Curabitur erat arcu, tempus iaculis augue nec, posuere ultricies eros. Mauris eu aliquet lacus. Phasellus sed malesuada lacus. Proin ullamcorper ligula ut elit ultrices, gravida consequat dui semper.
 
 Praesent aliquam felis tortor, quis bibendum augue blandit ut. Integer convallis justo aliquet, tempus mauris vitae, lobortis purus. In leo quam, congue eget velit vitae, vestibulum tempus nulla. Mauris maximus nulla ac dui dapibus tempor. Mauris aliquet maximus quam, sed gravida neque egestas quis. Aenean sit amet molestie lacus, vel volutpat arcu. Quisque fringilla tincidunt arcu. Integer vulputate justo sed gravida faucibus. Duis viverra, risus in laoreet aliquam, neque felis pharetra elit, a suscipit velit urna vel erat. Suspendisse sed mi in sapien vestibulum ullamcorper nec quis orci. Pellentesque aliquam urna nec mi tempor, at consequat lacus efficitur. Curabitur sit amet augue varius, dignissim nibh eu, dictum magna. Proin vestibulum ut lacus eu rhoncus. Curabitur facilisis sed mauris ac consectetur.
 
@@ -72,3 +72,233 @@ Vivamus sit amet arcu non lacus semper maximus. Proin tortor orci, aliquam vel u
 Donec congue ipsum ut lacus pharetra ultrices. In in mattis mi. Cras ut erat fermentum, bibendum dui id, mollis dui. Donec fermentum suscipit velit id blandit. Nunc vitae dui tristique, viverra nunc ac, blandit risus. Nullam eget pharetra est, id varius felis. Aenean posuere lorem in ultrices hendrerit. Vivamus est turpis, euismod et erat vel, volutpat ornare tellus. Fusce iaculis enim quis diam dignissim aliquet. Sed dolor velit, hendrerit id dolor at, iaculis cursus magna. Quisque molestie non mi quis viverra. Ut a suscipit tellus. Fusce feugiat, felis ut commodo finibus, ipsum ex suscipit metus, at pulvinar justo libero at purus. Cras vestibulum, orci id ultricies luctus, urna lacus rhoncus sem, ut suscipit ipsum mi in nunc.
 
 Nulla at ullamcorper tortor. Aenean commodo quam eget tortor egestas vehicula. Suspendisse sapien nulla, congue nec mollis ut, sagittis id felis. Cras dapibus a neque nec faucibus. Curabitur mattis ornare lorem, nec dapibus quam fringilla at. Sed sapien orci, facilisis non nulla a, bibendum fermentum tellus. Quisque at libero congue, fermentum mauris at, luctus odio. Duis mollis odio ut augue tincidunt, vitae pretium lectus mollis. Praesent sed odio vestibulum nulla faucibus venenatis eget nec turpis. Nullam sit amet felis vel nunc porttitor placerat in sed tellus. Maecenas dictum dolor id finibus faucibus. Sed non diam mauris. Morbi tempus eros mollis arcu malesuada efficitur. Nunc consectetur fringilla nunc, ut hendrerit enim tincidunt in. Nunc at risus lorem.
+`
+
+var percent = function(a, b) {
+  var p = ((a / b) * 100).toFixed(1);
+  p = `${p}%`;
+  return p;
+}
+
+
+var Text = function(t, type) {
+  this.type = type;
+  if (!this.type) { this.type = 'root'; }
+  if (this.type == 'root') { ROOTTEXTS++; } else { SUBTEXTS++; }
+  this.raw = t;
+  if (this.type == 'root') {
+    this.source = t.replace(/[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff-]+/g, ' ').trim();
+    this.source = this.source.replace(/\(|\)/g, '');
+  } else {
+    this.source = this.raw;
+  }
+  this.uniqued = this.source.replace(/(\w+?)'\w+/g, '$1');
+  this.uniqued_words = this.uniqued.split(' ');
+  this.length = this.source.length;
+  this.long_words = 0;
+  this.very_long_words = 0;
+  this.long_sentences = 0;
+  this.very_long_sentences = 0;
+  this.long_paragraphs = 0;
+  this.very_long_paragraphs = 0;
+  this.long_word_percent = '0%';
+  this.very_long_word_percent = '0%';
+  this.long_sentence_percent = '0%';
+  this.very_long_sentence_percent = '0%';
+  this.long_paragraph_percent = '0%';
+  this.very_long_paragraph_percent = '0%';
+  this.words = this.source.split(' ');
+  this.word_count = this.words.length;
+  this.average_word = this.average_word_length();
+  this.create_wordmap();
+  this.get_long_word_data();
+  if (this.type != 'sentence') {
+    this.sentences = this.extract_sentences();
+    this.sentence_count = this.sentences.length;
+    [this.average_sentence, this.average_sentence_words] = this.average_sentence_length();
+    this.get_long_sentence_data();
+  } else {
+    this.sentences = [];
+    this.sentence_count = 0;
+    this.average_sentence = NaN;
+    this.average_sentence_words = NaN;
+  }
+  if (this.type == 'root') {
+    this.paragraphs = this.extract_paragraphs();
+    this.paragraphs_count = this.paragraphs.length;
+    [this.average_paragraph, this.average_paragraph_words, this.average_paragraph_sentences] = this.average_paragraph_data();
+  } else {
+    this.paragraphs = [];
+    this.paragraphs_count = 0;
+    this.average_paragraph = NaN;
+    this.average_paragraph_words = NaN;
+    this.average_paragraph_sentences = NaN;
+  }
+}
+
+Text.prototype.create_wordmap = function() {
+  this.wordmap = {};
+  this.hapax = [];
+  this.unique_words = [];
+  this.most_common_word_count = 0;
+  var wc = this.uniqued_words.length;
+  var word;
+  for (var i = 0; i < this.uniqued_words.length; i++) {
+    word = this.uniqued_words[i];
+    if (this.wordmap[word]) {
+      this.wordmap[word]++;
+    } else {
+      this.wordmap[word] = 1;
+    }
+    if (this.wordmap[word] > this.most_common_word_count) {
+      this.most_common_word_count = this.wordmap[word];
+      this.most_common_word = word;
+    }
+  }
+  for (var w in this.wordmap) {
+    if (this.wordmap.hasOwnProperty(w)) {
+      this.unique_words[this.unique_words.length] = w;
+      if (this.wordmap[w] == 1) {
+        this.hapax[this.hapax.length] = w;
+      }
+    }
+  }
+  this.most_common_word_percent = percent(this.most_common_word_count, wc);
+  this.hapax_count = this.hapax.length;
+  this.hapax_percent = percent(this.hapax_count, wc);
+  this.unique_word_count = this.unique_words.length;
+  this.unique_word_percent = percent(this.unique_word_count, wc);
+}
+
+Text.prototype.get_long_word_data = function() {
+  var word;
+  for (var i = 0; i < this.words.length; i++) {
+    word = this.words[i];
+    if (word.length >= LONGWORD) { this.long_words++; }
+    if (word.length >= VERYLONGWORD) { this.very_long_words++; }
+  }
+  var wc = this.words.length;
+  this.long_word_percent = percent(this.long_words, wc);
+  this.very_long_word_percent = percent(this.very_long_words, wc);
+}
+
+Text.prototype.get_long_sentence_data = function() {
+  var sentence;
+  for (var i = 0; i < this.sentences.length; i++) {
+    sentence = this.sentences[i];
+    if (sentence.length >= LONGSENTENCE) { this.long_sentences++; }
+    if (sentence.length >= VERYLONGSENTENCE) { this.very_long_sentences++; }
+  }
+  var sc = this.sentences.length;
+  this.long_sentence_percent = percent(this.long_sentences, sc);
+  this.very_long_sentence_percent = percent(this.very_long_sentences, sc);
+}
+
+Text.prototype.average_word_length = function() {
+  var sum = 0;
+  var word;
+  for (var i = 0; i < this.words.length; i++) {
+    word = this.words[i];
+    sum += word.length;
+  }
+  return (sum / this.words.length).toFixed(1);
+}
+
+Text.prototype.average_sentence_length = function() {
+  var sentence;
+  var sum = 0;
+  var wc_sum = 0;
+  for (var i = 0; i < this.sentences.length; i++) {
+    sentence = this.sentences[i];
+    sum += sentence.length;
+    wc_sum += sentence.word_count;
+  }
+  return [(sum / this.sentences.length).toFixed(1), (wc_sum / this.sentences.length).toFixed(1)];
+}
+
+Text.prototype.average_paragraph_data = function() {
+  var paragraph;
+  var char_sum = 0;
+  var word_sum = 0;
+  var sent_sum = 0;
+  var pl = this.paragraphs.length;
+  for (var i = 0; i < pl; i++) {
+    paragraph = this.paragraphs[i];
+    char_sum += paragraph.length;
+    word_sum += paragraph.word_count;
+    sent_sum += paragraph.sentence_count;
+  }
+  return [(char_sum/pl).toFixed(1), (word_sum/pl).toFixed(1), (sent_sum/pl).toFixed(1)];
+}
+
+Text.prototype.extract_sentences = function() {
+  var spat = /[^\.]+?\./g;
+  var r = true;
+  var s = [];
+  var t = [];
+  while (r) {
+    r = spat.exec(this.source);
+    if (r) { s[s.length] =r[0]; }
+  }
+  if (s.length > 1) {
+    var sent;
+    for (var i = 0; i < s.length; i++) {
+      sent = s[i];
+      t[t.length] = new Text(sent, 'sentence');
+    }
+  }
+  return t;
+}
+
+Text.prototype.extract_paragraphs = function() {
+  var spat = /(.+?)(?=\n+|$)/g;
+  var r = true;
+  var s = [];
+  var t = [];
+  while (r) {
+    r = spat.exec(this.source);
+    if (r) { s[s.length] =r[0]; }
+  }
+  if (s.length > 1) {
+    var sent;
+    for (var i = 0; i < s.length; i++) {
+      sent = s[i];
+      t[t.length] = new Text(sent, 'paragraph');
+    }
+  }
+  return t;
+}
+
+var start = Date.now();
+var comp = new Text(TESTDATA);
+var finish = Date.now() - start;
+var cms = (comp.length / finish).toFixed(1);
+console.log(`
+------------------------------------
+  Text:
+    Characters: ${comp.length}
+    Words: ${comp.word_count}
+    Average word length: ${comp.average_word}
+    Long words: ${comp.long_words} / ${comp.long_word_percent}
+    Very long words: ${comp.very_long_words} / ${comp.very_long_word_percent}
+    Long sentences: ${comp.long_sentences} / ${comp.long_sentence_percent}
+    Very long sentences: ${comp.very_long_sentences} / ${comp.very_long_sentence_percent}
+    Hapaxes: ${comp.hapax_count} / ${comp.hapax_percent}
+    Most common word: '${comp.most_common_word}' / ${comp.most_common_word_count} / ${comp.most_common_word_percent}
+    Unique words: ${comp.unique_word_count} / ${comp.unique_word_percent}
+  Sentences: ${comp.sentence_count}
+    Average characters: ${comp.average_sentence}
+    Average words: ${comp.average_sentence_words}
+  Paragraphs: ${comp.paragraphs_count}
+    Average characters: ${comp.average_paragraph}
+    Average words: ${comp.average_paragraph_words}
+    Average sentences: ${comp.average_paragraph_sentences}
+
+  Created ${SUBTEXTS} ${SUBTEXTS > 1 ? 'subtexts' : 'subtext'} from ${ROOTTEXTS} root ${ROOTTEXTS > 1 ? 'texts' : 'text'}
+  Runtime: ${finish}ms | ${cms}c/ms
+------------------------------------
+`);
+
+// percentage of long words
+// unique words vs. word count (lexical density)
+// number of hapax legomenon (and vs. expected average thereof)
