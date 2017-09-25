@@ -37,12 +37,11 @@ a
   position: absolute
   top: bar-height
   right: 15px
-  z-index: 101
+  diag-zi: 101
   padding-top: 3px
   padding-bottom: 3px
   margin-top: 0
   margin-bottom: 0
-  display: block
   width: 100%
   br
     display: none
@@ -84,7 +83,7 @@ body[ae-mode="page"]
     .digital
       font-family: Consolas, monaco, monospace;
   &.unfolded
-    z-index: 100
+    z-index: bar-zi
     .ae
       position: relative
     .top-bar-contents
@@ -95,12 +94,42 @@ body[ae-mode="page"]
 .ae-page.displayed
   display: block !important
 
-body[ae-mode="item"] .focused .item-diagnostic
+body[ae-diagnostic-mode="true"][ae-mode="item"] .focused .item-diagnostic
   display: block
 
 body[ae-mode="page"] .global-diagnostic
   top: 0
   right: 0
+
+*[aedest]
+  interface-link()
+
+.link-decorator
+  font-size: 0.6em
+  position: relative
+  bottom: 0.35em
+
+.page-menu
+  sans(standard-font, s: 15px)
+  display: none
+  position: absolute
+  top: bar-height
+  height: menu-height
+  line-height: menu-height
+  width: 100%
+  text-align: left
+  margin: 0
+  padding: 0
+  text-align: right
+  li
+    display: inline-block
+    margin: 0
+    margin-left: 5px
+    padding-left: 5px
+    padding-right: 5px
+
+body[ae-has-pages] .page-menu
+  display: block
 
 body[ae-mode="page"][ae-diagnostic-mode="true"] .pages
   padding-top: 15px
@@ -220,7 +249,7 @@ bh3 = ratio(bw3, badge-ratio)
       margin-left: 500px * 0.25
 
 .badges
-  padding-top: 20px + bar-height
+  padding-top: 20px + total-top-height
 
 .border
   &.full-link
@@ -236,9 +265,9 @@ bh3 = ratio(bw3, badge-ratio)
   &.fullscreen
     width: 100%
     position: absolute
-    top: bar-height
+    top: total-top-height
     left: 0
-    z-index: 99
+    z-index: card-zi
     margin: 0
     .badge
       clr(bg: theme-dark-gray)

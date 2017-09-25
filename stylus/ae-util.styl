@@ -16,6 +16,11 @@ menu-height = 20px
 total-top-height = bar-height + menu-height
 badge-ratio = 1.2
 fold-time = 0.5s
+standard-font = Kanit
+
+bar-zi = 100
+card-zi = 99
+diag-zi = 101
 
 
 clr(fg = false, bg = false)
@@ -27,6 +32,8 @@ clr(fg = false, bg = false)
 fnt(family = false, size = false, weight = false)
   if family
     font-family: family
+  else
+    font-family: standard-font, Arial, sans-serif
   if size
     font-size: size
   if weight
@@ -85,6 +92,12 @@ bar-item(side, h = 1, lines = 1)
 
 
 category(n, c)
+  nq = s('"%s"', n)
+  body[ae-category={nq}]
+    .page-menu
+      clr(fg: theme-white, bg: c)
+    .page-menu *[aedest]:hover
+      clr(bg: c - #111)
   .tm-c{n}
     background-color: c !important
     color: theme-white !important

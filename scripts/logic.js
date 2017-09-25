@@ -59,6 +59,9 @@ var fs = function(obj) {
     var hc = ww - 50;
     var vc = 50;
     var ch = wh - 50;
+    if ($("body[ae-has-pages='true']").length > 0) {
+      ch -= 20;
+    }
     var ih = ch - lh;
     obj.css({"height":  ch});
     obj.find('.badge').css({
@@ -295,6 +298,8 @@ var activate_card_or_page = function(s, a, restore) {
         }
         $("body").attr("ae-active-page", "");
         $("body").attr("ae-active-source", s);
+        var m = $(`div[ae-manifest-type="source"][ae-source-name="${s}"]`);
+        $("body").attr("ae-category", m.attr("ae-category"));
         activate_card(s, a, restore);
       });
     } else if (type == 'single-source') {
@@ -314,6 +319,7 @@ var activate_card_or_page = function(s, a, restore) {
       $("body").attr("ae-active-page", "");
       $("body").attr("ae-active-source", "");
       $("body").attr("ae-active-anchor", "");
+      $("body").attr("ae-category", "");
       return_to_root(restore);
     });
   }

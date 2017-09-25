@@ -228,8 +228,8 @@ Compiler.prototype.write_index = function() {
     if (!data.hidden) {
       unhidden_pages = true;
       append(c.unhidden, {
-        name: single_source_name,
-        link: single_source
+        name: single_source_name.toUpperCase(),
+        link: single_source_name
       });
     }
     html = this.prerender(data, data.template);
