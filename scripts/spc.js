@@ -324,7 +324,4 @@ Compiler.prototype.compile = function() {
   this.write_index();
 };
 
-var c = new Compiler;
-c.compile();
-
 module.exports = Compiler;

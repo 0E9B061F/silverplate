@@ -1,5 +1,17 @@
 'use strict';
 
+const $ = require('jquery');
+const Mustache = require('mustache');
+const marked = require('marked');
+const URI = require('urijs');
+const Clipboard = require('clipboard');
+
+const bytes = require('./bytes.js');
+const ms = require('./ms.js');
+const text = require('./text.js');
+const jmd = require('./jmd.js');
+
+
 var template;
 
 var REQUESTS = 0;
@@ -8,30 +20,33 @@ var TOTALTIME = 0;
 var STARTSIZE = 0;
 var STARTBYTES = "0 B";
 
-var set_template = function(t) {
+
+var Silverplate = function() {}
+
+Silverplate.prototype.set_template = function(t) {
   template = t;
 }
 
-var load_template = function() {
+Silverplate.prototype.load_template = function() {
   var data;
   $.ajax({
     url: "templates/default.html.mst",
     type: "GET",
-    success: function(d) {
-      set_template(d);
+    success: (d) => {
+      this.set_template(d);
     },
-    error: function(request, error) {
+    error: (request, error) => {
       console.log(request);
     }
   });
   return data;
 }
 
-var get_object = function(s, a) {
+Silverplate.prototype.get_object = function(s, a) {
   return $("[aesource="+s+"] [aeid="+a+"]");
 }
 
-var fs = function(obj) {
+Silverplate.prototype.fs = function(obj) {
   if (obj.hasClass("fullscreen")) {
     console.log("closing fs");
     obj.css({"height":  ""});
@@ -82,29 +97,29 @@ var fs = function(obj) {
   }
 }
 
-var hide_contents = function(s) {
+Silverplate.prototype.hide_contents = function(s) {
   var source  = $("[aesource="+s+"]");
   source.css({"display": "none"});
   source.removeClass("displayed");
 }
 
-var word_count = function(text) {
+Silverplate.prototype.word_count = function(text) {
   return text.replace(/\s+/g, ' ').trim().split(' ').length;
 }
 
-var load_content = function(s, a, toggle) {
-  var source_path = anchor_path(s, a) + ".json.md";
+Silverplate.prototype.load_content = function(s, a, toggle) {
+  var source_path = this.anchor_path(s, a) + ".json.md";
   var req_start = Date.now();
   $.ajax({
     url: source_path,
     type: "GET",
-    success: function(raw) {
+    success: (raw) => {
       var req_total = Date.now() - req_start;
       var parse_start = Date.now();
-      var data = parse_jmd(raw);
+      var data = jmd(raw);
       data.source_path = source_path;
-      data.anchor_path = anchor_path(s, a);
-      data.hash_path = "#/" + anchor_path(s, a);
+      data.anchor_path = this.anchor_path(s, a);
+      data.hash_path = "#/" + this.anchor_path(s, a);
       data.source = s;
       data.id = a;
       data.origin = "dynamically rendered";
@@ -115,20 +130,20 @@ var load_content = function(s, a, toggle) {
       TOTALTIME += total_time;
       var source  = $("[aesource="+s+"]");
       source.append(html);
-      var obj = get_object(s, a);
+      var obj = this.get_object(s, a);
       obj.find(".diagnostic .parse-time").append(parse_total);
       obj.find(".diagnostic .total-time").append(total_time);
-      var wc = word_count(obj.find('.readable').text());
+      var wc = this.word_count(obj.find('.readable').text());
       obj.find(".diagnostic .word-count").append(wc);
-      obj.find(".diagnostic .read-time").append(wpm(wc));
-      obj.find(".page-count").append(pages(wc));
+      obj.find(".diagnostic .read-time").append(text.wpm(wc));
+      obj.find(".page-count").append(text.pages(wc));
       if (toggle) {
-        tc_inner(s, a);
+        this.tc_inner(s, a);
       }
-      prepend_links();
-      adjust_card_title();
+      this.prepend_links();
+      this.adjust_card_title();
     },
-    error: function(request, error) {
+    error: (request, error) => {
       console.log(request);
     }
   });
@@ -136,21 +151,21 @@ var load_content = function(s, a, toggle) {
   LOADED++;
 }
 
-var loaded = function(s, a) {
+Silverplate.prototype.loaded = function(s, a) {
   var source = $("[aesource="+s+"]");
   var anchor = source.find("[aeid="+a+"]");
   return anchor.length !== 0;
 }
 
-var not_loaded = function(s, a) {
-  return !loaded(s, a);
+Silverplate.prototype.not_loaded = function(s, a) {
+  return !this.loaded(s, a);
 }
 
-var tc_inner = function(s, a) {
+Silverplate.prototype.tc_inner = function(s, a) {
   var source  = $("[aesource="+s+"]");
   var sources = $("[aesource]");
   var anchors = source.find("[aeid]");
-  var active  = get_object(s, a);
+  var active  = this.get_object(s, a);
   console.log(active);
   if (a) {
     anchors.css({"display": "none"});
@@ -167,16 +182,16 @@ var tc_inner = function(s, a) {
   source.addClass("displayed");
 }
 
-var toggle_contents = function(s, a) {
-  if (a && not_loaded(s, a)) {
+Silverplate.prototype.toggle_contents = function(s, a) {
+  if (a && this.not_loaded(s, a)) {
     console.log("trying to toggle unloaded content");
-    load_content(s, a, true);
+    this.load_content(s, a, true);
   } else {
-    tc_inner(s, a);
+    this.tc_inner(s, a);
   }
 }
 
-var anchor_path = function(s, a) {
+Silverplate.prototype.anchor_path = function(s, a) {
   var p = "source/" + s;
   if (a) {
     p = p + "/" + a;
@@ -184,17 +199,17 @@ var anchor_path = function(s, a) {
   return p;
 }
 
-var parse_hash = function() {
+Silverplate.prototype.parse_hash = function() {
   return window.location.hash.split("/").slice(1);
 }
 
-var current_anchor = function() {
-  var [r, s, a] = parse_hash();
+Silverplate.prototype.current_anchor = function() {
+  var [r, s, a] = this.parse_hash();
   return a;
 }
 
-var current_anchor_obj = function() {
-  var [r, s, a] = parse_hash();
+Silverplate.prototype.current_anchor_obj = function() {
+  var [r, s, a] = this.parse_hash();
   if (a) {
     return $("[aesource="+s+"] [aeid="+a+"]");
   } else {
@@ -202,12 +217,12 @@ var current_anchor_obj = function() {
   }
 }
 
-var current_source = function() {
-  var [r, s, a] = parse_hash();
+Silverplate.prototype.current_source = function() {
+  var [r, s, a] = this.parse_hash();
   return s;
 }
 
-var clear_class = function(obj) {
+Silverplate.prototype.clear_class = function(obj) {
   var cat = obj.attr("aesetcat");
   if (cat) {
     obj.removeClass(cat);
@@ -215,38 +230,38 @@ var clear_class = function(obj) {
   }
 }
 
-var adjust_class = function(obj, classbase) {
+Silverplate.prototype.adjust_class = function(obj, classbase) {
   var fsc = $(".fullscreen");
   if (fsc) {
-    clear_class(obj);
+    this.clear_class(obj);
     var c = fsc.attr("aecategory");
     obj.addClass(classbase+c);
     obj.attr("aesetcat", classbase+c)
   } else {
-    clear_class(obj);
+    this.clear_class(obj);
   }
 }
 
-var adjust_textmark_color = function() {
-  adjust_class($(".ae"), "tm-c");
+Silverplate.prototype.adjust_textmark_color = function() {
+  this.adjust_class($(".ae"), "tm-c");
 }
 
-var adjust_diag_color = function() {
-  adjust_class($(".global-diagnostic"), "diag-c");
+Silverplate.prototype.adjust_diag_color = function() {
+  this.adjust_class($(".global-diagnostic"), "diag-c");
 }
 
-var change_state = function(data, url, restore) {
+Silverplate.prototype.change_state = function(data, url, restore) {
   if (!restore) {
     history.pushState(data, url, url);
   }
-  adjust_card_title();
-  adjust_textmark_color();
-  adjust_diag_color();
+  this.adjust_card_title();
+  this.adjust_textmark_color();
+  this.adjust_diag_color();
 }
 
-var adjust_card_title = function() {
-  if (current_anchor()) {
-    var cao = current_anchor_obj();
+Silverplate.prototype.adjust_card_title = function() {
+  if (this.current_anchor()) {
+    var cao = this.current_anchor_obj();
     var title = cao.attr("aetitle");
     var slug = cao.attr("aeslug");
     var cardtitle;
@@ -256,39 +271,39 @@ var adjust_card_title = function() {
       cardtitle = title;
     }
     $(".fullscreen .badge .label .subtitle").html('<span class="icon ion-arrow-right-a seperator"></span>'+cardtitle);
-  } else if (current_source()) {
+  } else if (this.current_source()) {
     $(".fullscreen .badge .label .subtitle").html('<span class="icon ion-arrow-right-a seperator"></span><span class="icon ion-asterisk"></span>');
   } else {
     $(".badge .label .subtitle").html('');
   }
 }
 
-var return_to_root = function(restore) {
+Silverplate.prototype.return_to_root = function(restore) {
   var source = $(".fullscreen").attr("aeparent");
   console.log("fs card: "+source)
-  hide_contents(source);
+  this.hide_contents(source);
   var parent = $("[aeparent="+source+"]");
-  fs(parent);
+  this.fs(parent);
   var nurl = window.location.origin + window.location.pathname;
   console.log(nurl);
-  change_state({"source": "", "anchor": ""}, nurl, restore);
+  this.change_state({"source": "", "anchor": ""}, nurl, restore);
   console.log(window.location);
 }
 
-var go_up = function() {
+Silverplate.prototype.go_up = function() {
   if (current_anchor()) {
-    activate_card(current_source());
+    this.activate_card(current_source());
   } else if (current_source()) {
-    return_to_root();
+    this.return_to_root();
   }
 }
 
-var activate_card_or_page = function(s, a, restore) {
+Silverplate.prototype.activate_card_or_page = function(s, a, restore) {
   if (s) {
     console.log(`trying to activate ${s}/${a}`);
     var type = $(`[ae-source-name=${s}]`).attr("ae-manifest-type");
     if (type == 'source') {
-      deactivate_page(() => {
+      this.deactivate_page(() => {
         if (a) {
           $("body").attr("ae-mode", 'item');
           $("body").attr("ae-active-anchor", a);
@@ -300,7 +315,7 @@ var activate_card_or_page = function(s, a, restore) {
         $("body").attr("ae-active-source", s);
         var m = $(`div[ae-manifest-type="source"][ae-source-name="${s}"]`);
         $("body").attr("ae-category", m.attr("ae-category"));
-        activate_card(s, a, restore);
+        this.activate_card(s, a, restore);
       });
     } else if (type == 'single-source') {
       var opened = $("body").attr("ae-mode") != 'page';
@@ -310,48 +325,48 @@ var activate_card_or_page = function(s, a, restore) {
       $("body").attr("ae-active-page", s);
       $("body").attr("ae-active-source", "");
       $("body").attr("ae-active-anchor", "");
-      activate_page(s, os, oa, restore, opened);
+      this.activate_page(s, os, oa, restore, opened);
     }
   } else {
     console.log("returning to root");
-    deactivate_page(() => {
+    this.deactivate_page(() => {
       $("body").attr("ae-mode", 'root');
       $("body").attr("ae-active-page", "");
       $("body").attr("ae-active-source", "");
       $("body").attr("ae-active-anchor", "");
       $("body").attr("ae-category", "");
-      return_to_root(restore);
+      this.return_to_root(restore);
     });
   }
 }
 
-var activate_card = function(s, a, restore) {
+Silverplate.prototype.activate_card = function(s, a, restore) {
   if (s) {
     var parent = $("[aeparent="+s+"]");
     if (!parent.hasClass("fullscreen")) {
-      fs(parent);
+      this.fs(parent);
     }
-    toggle_contents(s, a);
+    this.toggle_contents(s, a);
     if (a) {
-      var o = get_object(s, a);
+      var o = this.get_object(s, a);
       if (o.attr("aeorigin") == "preloaded" && o.attr("aeinjected") != "true") {
         o.attr("aeinjected", "true");
-        var wc = word_count(o.find('.readable').text());
+        var wc = this.word_count(o.find('.readable').text());
         o.find(".word-count").append(wc);
-        o.find(".read-time").append(wpm(wc));
-        o.find(".page-count").append(pages(wc));
+        o.find(".read-time").append(text.wpm(wc));
+        o.find(".page-count").append(text.pages(wc));
       }
     }
     var base = window.location.href.split("/").slice(0,-1).join("/");
     var url = URI();
     url.search({});
-    url.hash(`/${anchor_path(s, a)}`);
+    url.hash(`/${this.anchor_path(s, a)}`);
     console.log(url.toString());
-    change_state({"source": s, "anchor": a}, url.toString(), restore);
+    this.change_state({"source": s, "anchor": a}, url.toString(), restore);
   }
 }
 
-var deactivate_page = function(cb) {
+Silverplate.prototype.deactivate_page = function(cb) {
   if ($('.top-bar').hasClass("unfolded")) {
     $('.top-bar').css({"height": ""});
     window.setTimeout(function() {
@@ -365,14 +380,14 @@ var deactivate_page = function(cb) {
   }
 }
 
-var activate_page = function(s, os, oa, restore, opened) {
+Silverplate.prototype.activate_page = function(s, os, oa, restore, opened) {
   var url = URI('');
   var curl = URI(window.location.toString());
   var data = curl.search(true);
   var w = {};
   if (opened && data.os) {
     console.log("restoring disturbed page + source state");
-    activate_card(data.os, data.oa, restore);
+    this.activate_card(data.os, data.oa, restore);
     w.os = data.os;
     if (data.oa) {w.oa = data.oa;}
   } else if (opened) {
@@ -390,66 +405,47 @@ var activate_page = function(s, os, oa, restore, opened) {
     $('.top-bar .ae').css({"padding-top":  wh, "bottom": wh});
     $('.top-bar').removeClass("folded").addClass("unfolded");
   }
-  url.hash(`#/${anchor_path(s)}`);
+  url.hash(`#/${this.anchor_path(s)}`);
   url.search(w);
   console.log(w);
-  change_state({source: s, anchor: null, was: w}, url.toString(), restore);
+  this.change_state({source: s, anchor: null, was: w}, url.toString(), restore);
 }
 
-var close_page = function() {
+Silverplate.prototype.close_page = function() {
   if ($('body').attr('ae-mode') == 'page') {
     var curl = URI(window.location.toString());
     var data = curl.search(true);
-    activate_card_or_page(data.os, data.oa);
+    this.activate_card_or_page(data.os, data.oa);
   }
 }
 
-$('.full-link').click(function() {
-  fs($(this));
-});
-
-$("[aedest]").click(function() {
-  var dest = $(this).attr("aedest");
-  if (dest == "..") {
-    console.log("hit up button");
-    go_up();
-  } else if (dest == "!!") {
-    console.log("hit page close button (!!)");
-    close_page();
-  } else {
-    console.log("hit link button");
-    var anchor = $(this).attr("aeanchor");
-    activate_card_or_page(dest, anchor);
-  }
-});
-
-var prepend_links = function() {
+Silverplate.prototype.prepend_links = function() {
   var bare = $(".contents a:not([aeprepended])").not("li a");
   bare.prepend('<span class="icon ion-link link-decorator"></span>&thinsp;');
   bare.attr("aeprepended", "true");
 }
 
-var early_init = function() {
-  load_template();
-  var [r, s, a] = parse_hash();
+Silverplate.prototype.early_init = function() {
+  this.load_template();
+  var [r, s, a] = this.parse_hash();
   $(".border").removeClass("dynamic");
   $(".top-bar").removeClass("dynamic");
-  activate_card_or_page(s, a);
+  this.activate_card_or_page(s, a);
 }
 
-var init_content = function() {
-  prepend_links();
+Silverplate.prototype.init_content = function() {
+  this.prepend_links();
   new Clipboard('.copyable');
   $(".border").addClass("dynamic");
   $(".top-bar").addClass("dynamic");
   STARTSIZE = $("html").html().length;
   STARTBYTES = bytes(STARTSIZE);
-  var update_id = setInterval(function () {
+  var update_id = setInterval(() => {
     var dl = $("html").html().length;
     var b  = bytes(dl);
     var bd = dl - STARTSIZE;
     bd = bytes(bd);
-    var wc = word_count($("html").text());
+    var wc = this.word_count($("html").text());
     var imgc = $("img").length;
     var ic = $("[aeid]").length;
     var awt;
@@ -467,10 +463,37 @@ var init_content = function() {
   }, 2500);
 }
 
-window.onpopstate = function(e) {
-  activate_card_or_page(e.state.source, e.state.anchor, true);
-};
+Silverplate.prototype.begin = function() {
+  window.onpopstate = function(e) {
+    this.activate_card_or_page(e.state.source, e.state.anchor, true);
+  };
 
-$(document).ready(init_content);
+  $(document).ready(() => { this.init_content() });
 
-early_init();
+  $('.full-link').click(() => {
+    this.fs($(this));
+  });
+
+  var self = this;
+
+  $("[aedest]").click(function() {
+    var dest = $(this).attr("aedest");
+    console.log(`dest: ${dest}`);
+    if (dest == "..") {
+      console.log("hit up button");
+      self.go_up();
+    } else if (dest == "!!") {
+      console.log("hit page close button (!!)");
+      self.close_page();
+    } else {
+      console.log("hit link button");
+      var anchor = $(this).attr("aeanchor");
+      self.activate_card_or_page(dest, anchor);
+    }
+  });
+
+  this.early_init();
+}
+
+
+module.exports = Silverplate;

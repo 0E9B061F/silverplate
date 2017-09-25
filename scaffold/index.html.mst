@@ -46,17 +46,7 @@
 
 {{> manifest}}
 
-<script src="vendor/jquery.min.js"></script>
-<script src="vendor/mustache.min.js"></script>
-<script src="vendor/marked.min.js"></script>
-<script src="vendor/clipboard.min.js"></script>
-<script src="vendor/URI.min.js"></script>
-
-<script src="scripts/bytes.js"></script>
-<script src="scripts/ms.js"></script>
-<script src="scripts/wpm.js"></script>
-<script src="scripts/jmd.js"></script>
-<script src="scripts/logic.js"></script>
+<script src="bundle.js"></script>
 
 </body>
 </html>

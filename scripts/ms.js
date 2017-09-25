@@ -226,3 +226,6 @@ var ms = function(ms, opts) {
 
 	return ret.join(' ');
 };
+
+
+module.exports = ms;

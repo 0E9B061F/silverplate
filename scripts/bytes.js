@@ -26,3 +26,5 @@ var bytes = function(num) {
 
 	return (neg ? '-' : '') + numStr + ' ' + unit;
 };
+
+module.exports = bytes;

@@ -1,8 +1,7 @@
 'use strict';
 
-if (typeof window === 'undefined') {
-  var marked = require('marked');
-}
+
+var marked = require('marked');
 
 
 var parse_md = function(text) {
@@ -64,6 +63,4 @@ var parse_jmd = function(text) {
   return data;
 }
 
-if (typeof window === 'undefined') {
-  module.exports = parse_jmd;
-}
+module.exports = parse_jmd;
