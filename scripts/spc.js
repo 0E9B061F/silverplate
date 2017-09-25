@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require('fs');
+const fs = require('fs-extra');
 const Mustache = require('mustache');
 const jmd = require('./jmd');
 
@@ -282,7 +282,13 @@ Compiler.prototype.write_index = function() {
   };
 
   var index = Mustache.render(this.scaffold.main, c, this.scaffold.partials);
-  fs.writeFileSync("index.html", index);
+
+  fs.ensureDirSync('build');
+  fs.writeFileSync("build/index.html", index);
+  fs.copySync('vendor', 'build/vendor');
+  fs.copySync('source', 'build/source');
+  fs.copySync('css', 'build/css');
+  fs.copySync('templates', 'build/templates');
 }
 
 Compiler.prototype.get_template = function(template) {
