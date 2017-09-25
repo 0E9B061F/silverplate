@@ -4,15 +4,22 @@
   "description": "AETHERISED (things by nathan gifford)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile:source": "node index.js",
+    "compile:bundle": "webpack",
+    "watch:js": "watch \"npm run compile:bundle\" scripts",
+    "watch:html": "watch \"npm run compile:source\" scaffold source",
+    "watch": "parallelshell \"npm run watch:js\" \"npm run watch:html\""
+    },
   "keywords": [
     "website"
   ],
   "author": "aetherised",
   "license": "ISC",
   "devDependencies": {
-    "stylus": "^0.54.5"
+    "parallelshell": "^3.0.1",
+    "stylus": "^0.54.5",
+    "watch": "^1.0.2"
   },
   "dependencies": {
     "clipboard": "^1.7.1",

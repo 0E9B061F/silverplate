@@ -320,7 +320,7 @@ Compiler.prototype.compile = function() {
   this.start_time = Date.now();
   this.scan();
   console.log(this.templates);
-  this.write_manifest();
+  //this.write_manifest();
   this.write_index();
 };
 
