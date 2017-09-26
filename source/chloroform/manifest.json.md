@@ -1,7 +1,7 @@
 {{{
   "title": "Chloroform",
   "category": "1",
-  "template": "default",
+  "template": "test",
   "cardtype": "list"
 }}}
 

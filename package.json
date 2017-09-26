@@ -5,11 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "npm run compile:source && npm run compile:bundle",
     "compile:source": "node index.js",
     "compile:bundle": "webpack",
-    "watch:js": "watch \"npm run compile:bundle\" scripts",
-    "watch:html": "watch \"npm run compile:source\" scaffold source",
-    "watch": "parallelshell \"npm run watch:js\" \"npm run watch:html\""
+    "serve": "http-server build",
+    "watch:bundle": "watch \"npm run compile:bundle\" scripts stylus",
+    "watch:source": "watch \"npm run compile:source\" templates source",
+    "watch": "parallelshell \"npm run watch:bundle\" \"npm run watch:source\"",
+    "watchserve": "parallelshell \"npm run watch:js\" \"npm run watch:html\" \"npm run serve\"",
+    "clobber": "node tools/clobber.js",
+    "cc": "npm run clobber && npm run compile"
   },
   "keywords": [
     "website"
@@ -17,9 +22,17 @@
   "author": "aetherised",
   "license": "ISC",
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "css-loader": "^0.28.7",
+    "file-loader": "^0.11.2",
     "parallelshell": "^3.0.1",
+    "style-loader": "^0.18.2",
     "stylus": "^0.54.5",
-    "watch": "^1.0.2"
+    "stylus-loader": "^3.0.1",
+    "watch": "^1.0.2",
+    "webpack": "^3.6.0"
   },
   "dependencies": {
     "clipboard": "^1.7.1",

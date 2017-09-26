@@ -1,0 +1,48 @@
+<div ae-item="{{id}}" aeid="{{id}}" aetitle="{{title}}" aeslug="{{slug}}" aeorigin="{{origin}}" class="item{{#class}} {{class}}{{/class}}">
+<h2>{{title}}</h2>
+<div class="info">
+{{#boxed.0}}
+  <table class="boxed">
+{{/boxed.0}}
+{{#boxed}}
+  <tr>
+    <td class="key">{{k}}</td>
+    <td class="value">{{v}}</td>
+  </tr>
+{{/boxed}}
+{{#boxed.0}}
+  </table>
+{{/boxed.0}}
+
+{{#links.0}}
+  <span class="key links-label">LINKS</span>
+  <ul class="links">
+{{/links.0}}
+  {{#links}}
+    <li class="link">
+      <a href="{{v}}">{{k}}</a>
+    </li>
+  {{/links}}
+{{#links.0}}
+  </ul>
+{{/links.0}}
+
+</div>
+<div class="readable">
+<p>hello there this is a user template</p>
+{{&body}}
+{{#sections.margin}}
+<div class="aside">
+<div class="aside-text">{{&sections.margin}}</div>
+<p class="aside-label">&mdash; <em>Ed.</em></p>
+</div>
+{{/sections.margin}}
+</div>
+<div class="diagnostic item-diagnostic">
+  <span>
+  {{origin}} <a class="data" href="{{source_path}}">{{source_path}}</a> <span class="icon ion-arrow-right-c seperator"></span> <span class="data">{{hash_path}}</span>
+  <br/>
+  <span class="times">time: <span class="data"><span class="total-time"></span>ms</span> / request: <span class="data">{{req_time}}ms</span> / parse: <span class="data"><span class="parse-time"></span>ms</span> | </span><span class="data"><span class="word-count"></span> words</span> / </span><span class="data page-count"></span> / read time: <span class="data read-time"></span>
+  </span>
+</div>
+</div>

@@ -1,43 +1,49 @@
 'use strict';
 
 const fs = require('fs-extra');
+const _path = require('path');
+const pj = _path.join;
 const Mustache = require('mustache');
 const jmd = require('./jmd');
+const u = require('./util');
+const env = require('./env');
 
 
-var append = function(a, i) {
-  a[a.length] = i;
-}
-
-var scandir = function(target, type, cb, filter) {
-  var files = fs.readdirSync(target);
-  var file;
-  var path;
-  var r = [];
-  for (var i = 0; i < files.length; i++) {
-    file = files[i];
-    path = target + "/" + file;
-    var stats = fs.statSync(path);
-    if ((type == "dir" && stats.isDirectory()) || (type == "file" && stats.isFile())) {
-      if (!filter || !filter.test(file)) {
-        append(r, path);
-        if (cb) {
-          cb(path);
-        }
-      }
-    }
-  }
-  return r;
+const Manifest = function() {
 }
 
 
-var Manifest = function() {
-}
+var Compiler = function(target = "source", output = "build") {
+  this.source_root = target;
 
+  this.output_source_name = 'source';
+  this.user_templates_name = '_templates_';
 
-var Compiler = function() {
-  this.source_root = "source";
-  this.templates_root = "templates"
+  this.path = {};
+  this.path.templates = {};
+  this.path.templates.root = "templates";
+  this.path.templates.user = pj(this.source_root, this.user_templates_name);
+  this.path.templates.index = {};
+  this.path.templates.index.root = pj(this.path.templates.root, 'index');
+  this.path.templates.index.main = pj(this.path.templates.index.root, 'index.html.mst');
+  this.path.templates.index.card = pj(this.path.templates.index.root, 'card.html.mst');
+  this.path.templates.index.diag = pj(this.path.templates.index.root, 'global_diagnostic.html.mst');
+  this.path.templates.index.manifest = pj(this.path.templates.index.root, 'manifest.html.mst');
+  this.path.templates.content = pj(this.path.templates.root, 'content');
+  this.path.output = {};
+  this.path.output.root = output;
+  this.path.output.index = pj(this.path.output.root, 'index.html');
+  this.path.output.source = pj(this.path.output.root, this.output_source_name);
+  this.path.output.vendor = pj(this.path.output.root, 'vendor');
+  this.path.output.templates = pj(this.path.output.root, 'templates');
+
+  this.scaffold = {};
+  this.scaffold.main = u.read(this.path.templates.index.main);
+  this.scaffold.partials = {};
+  this.scaffold.partials.card = u.read(this.path.templates.index.card);
+  this.scaffold.partials.manifest = u.read(this.path.templates.index.manifest);
+  this.scaffold.partials.global_diagnostic = u.read(this.path.templates.index.diag);
+
   this.sources = [];
   this.single_sources = [];
   this.unhidden = [];
@@ -48,14 +54,11 @@ var Compiler = function() {
   this.templates_list = [];
   this.manifests = {};
   this.template_cache = {};
-  this.scaffold = {};
-  this.scaffold.main = fs.readFileSync('scaffold/index.html.mst', {encoding: 'utf-8'});
-  this.scaffold.partials = {};
-  this.scaffold.partials.card = fs.readFileSync('scaffold/card.html.mst', {encoding: 'utf-8'});
-  this.scaffold.partials.manifest = fs.readFileSync('scaffold/manifest.html.mst', {encoding: 'utf-8'});
-  this.scaffold.partials.global_diagnostic = fs.readFileSync('scaffold/global_diagnostic.html.mst', {encoding: 'utf-8'});
+
   this.idpat = /^(\d+)/;
   this.namepat = /^(.+?)\./;
+  this.uspat = /^_.+_$/;
+
   this.default_manifest = {
     category: 1,
     template: 'default',
@@ -71,35 +74,41 @@ Compiler.prototype.source_path = function(name) {
 Compiler.prototype.scan_source = function(path) {
   console.log("scanning source "+path)
   this.items[path] = [];
-  scandir(path, 'file', (p) => {
+  u.scandir(path, 'file', (p) => {
     console.log("got item "+p)
-    append(this.items[path], p);
+    u.append(this.items[path], p);
   }, /^manifest/);
 };
 
 Compiler.prototype.scan_single_sources = function() {
-  scandir(this.source_root, 'file', (p) => {
+  u.scandir(this.source_root, 'file', (p) => {
     console.log("got single source "+p);
-    append(this.single_sources, p);
+    u.append(this.single_sources, p);
   }, /^manifest/);
 };
 
 Compiler.prototype.scan_sources = function() {
-  scandir(this.source_root, 'dir', (p) => {
+  u.scandir(this.source_root, 'dir', (p) => {
     console.log("got source " + p)
     this.scan_source(p);
-    append(this.sources, p);
-  });
+    u.append(this.sources, p);
+  }, this.uspat);
 };
 
 Compiler.prototype.scan_templates = function() {
   var p;
   var name;
-  scandir(this.templates_root, 'file', (t) => {
+  u.scandir(this.path.templates.content, 'file', (t) => {
     name = t.split("/").splice(-1)[0];
     name = this.namepat.exec(name)[1];
     this.templates[name] = t;
-    append(this.templates_list, name);
+    u.append(this.templates_list, name);
+  });
+  u.scandir(this.path.templates.user, 'file', (t) => {
+    name = t.split("/").splice(-1)[0];
+    name = this.namepat.exec(name)[1];
+    this.templates[name] = t;
+    u.append(this.templates_list, name);
   });
 }
 
@@ -121,7 +130,7 @@ Compiler.prototype.parse_manifests = function() {
     source = this.sources[i];
     manifest = source + "/" + "manifest.json.md";
     if (fs.existsSync(manifest)) {
-      var data = fs.readFileSync(manifest);
+      var data = u.read(manifest);
       data = jmd(data);
       data = Object.assign({}, this.default_manifest, data);
       this.manifests[source] = data;
@@ -184,7 +193,7 @@ Compiler.prototype.write_index = function() {
       data.source_path = item;
       data.hash_path = anchor;
       html = this.prerender(data, this.manifests[source].template);
-      append(precompiled, {item: html});
+      u.append(precompiled, {item: html});
     }
     items = this.items[source];
     for (var n = 0; n < items.length; n++) {
@@ -193,13 +202,13 @@ Compiler.prototype.write_index = function() {
       item_id = this.idpat.exec(item_id)[1];
       data = this.preparse(item);
       if (!data.slug) {data.slug = data.title;}
-      append(links, {
+      u.append(links, {
         source: source_name,
         id: item_id,
         slug: data.slug
       });
     }
-    append(c.cards, {
+    u.append(c.cards, {
       path: source,
       source_name: source_name,
       source_title: this.manifests[source].title,
@@ -207,7 +216,7 @@ Compiler.prototype.write_index = function() {
       links: links,
       precompiled: precompiled
     });
-    append(c.manifest.sources, {
+    u.append(c.manifest.sources, {
       category: this.manifests[source].category,
       item_count: this.item_counts[source],
       source_name: source_name,
@@ -227,13 +236,13 @@ Compiler.prototype.write_index = function() {
     data.name = single_source_name;
     if (!data.hidden) {
       unhidden_pages = true;
-      append(c.unhidden, {
+      u.append(c.unhidden, {
         name: single_source_name.toUpperCase(),
         link: single_source_name
       });
     }
     html = this.prerender(data, data.template);
-    append(c.manifest.single_sources, {
+    u.append(c.manifest.single_sources, {
       source_name: single_source_name,
       source_path: single_source,
       template: data.template,
@@ -245,29 +254,29 @@ Compiler.prototype.write_index = function() {
   for (var i = 0; i < this.templates_list.length; i++) {
     template_name = this.templates_list[i];
     template_path = this.templates[template_name];
-    append(c.manifest.templates, {
+    u.append(c.manifest.templates, {
       template_path: template_path,
       template_name: template_name
     });
   }
   var comptime = Date.now() - this.start_time;
-  append(c.manifest.stats, {
+  u.append(c.manifest.stats, {
     name: "total_pages",
     value: this.single_sources.length
   });
-  append(c.manifest.stats, {
+  u.append(c.manifest.stats, {
     name: "total_sources",
     value: this.sources.length
   });
-  append(c.manifest.stats, {
+  u.append(c.manifest.stats, {
     name: "total_items",
     value: this.item_count
   });
-  append(c.manifest.stats, {
+  u.append(c.manifest.stats, {
     name: "compile_time",
     value: comptime
   });
-  append(c.manifest.flags, {
+  u.append(c.manifest.flags, {
     name: "unhidden_pages",
     value: unhidden_pages
   });
@@ -280,15 +289,19 @@ Compiler.prototype.write_index = function() {
   c.flags = {
     unhidden_pages: unhidden_pages
   };
+  c.env = env;
 
   var index = Mustache.render(this.scaffold.main, c, this.scaffold.partials);
 
-  fs.ensureDirSync('build');
-  fs.writeFileSync("build/index.html", index);
-  fs.copySync('vendor', 'build/vendor');
-  fs.copySync('source', 'build/source');
-  fs.copySync('css', 'build/css');
-  fs.copySync('templates', 'build/templates');
+  fs.ensureDirSync(this.path.output.root);
+  fs.writeFileSync(this.path.output.index, index);
+  fs.copySync(this.source_root, this.path.output.source, {filter: (src, dest) => {
+    src = _path.basename(src);
+    console.log(`src: ${src} match _???_: ${src.match(this.uspat)} match manifest: ${src.match(/^manifest/)}`)
+    return !src.match(this.uspat) && !src.match(/^manifest/);
+  }});
+  fs.copySync(this.path.templates.content, 'build/templates');
+  fs.copySync(this.path.templates.user, 'build/templates');
 }
 
 Compiler.prototype.get_template = function(template) {
@@ -297,14 +310,14 @@ Compiler.prototype.get_template = function(template) {
   var data = this.template_cache[template];
   if (!data) {
     var path = this.templates[template];
-    data = fs.readFileSync(path, {encoding: 'utf-8'});
+    data = u.read(path);
     this.template_cache[template] = data;
   }
   return data;
 }
 
 Compiler.prototype.preparse = function(path) {
-  var data = fs.readFileSync(path);
+  var data = u.read(path);
   data = jmd(data);
   return data;
 }
@@ -329,5 +342,6 @@ Compiler.prototype.compile = function() {
   //this.write_manifest();
   this.write_index();
 };
+
 
 module.exports = Compiler;

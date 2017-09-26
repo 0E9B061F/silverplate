@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>AETHERISED</title>
-  <link href="vendor/ionicons.min.css" rel="stylesheet" type="text/css">
-  <link href="css/ae.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Almendra+Display|Catamaran:100|Kanit:100|Londrina+Outline|Quicksand:300|Yantramanav:100" rel="stylesheet">
 </head>
 <body ae-mode="root" ae-active-source="" ae-active-page="" ae-active-anchor="" {{#flags.diagnostic_mode}} ae-diagnostic-mode="true"{{/flags.diagnostic_mode}}{{#flags.unhidden_pages}} ae-has-pages="true"{{/flags.unhidden_pages}}>
@@ -12,7 +10,7 @@
 <div class="top-bar folded">
   <div class="pages">
     {{#manifest.single_sources}}
-      {{&html}}
+    {{&html}}
     {{/manifest.single_sources}}
   </div>
   <div class="top-bar-contents"><div class="inner-body">
@@ -39,14 +37,12 @@
 {{> global_diagnostic}}
 
 <div class="badges inner-body">
-  {{#cards}}
-    {{> card}}
-  {{/cards}}
+  {{#cards}}{{> card}}{{/cards}}
 </div>
 
 {{> manifest}}
 
-<script src="bundle.js"></script>
+<script src="{{env.clientscript}}"></script>
 
 </body>
 </html>
