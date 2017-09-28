@@ -291,9 +291,9 @@ Silverplate.prototype.return_to_root = function(restore) {
 }
 
 Silverplate.prototype.go_up = function() {
-  if (current_anchor()) {
-    this.activate_card(current_source());
-  } else if (current_source()) {
+  if (this.current_anchor()) {
+    this.activate_card(this.current_source());
+  } else if (this.current_source()) {
     this.return_to_root();
   }
 }
@@ -464,7 +464,7 @@ Silverplate.prototype.init_content = function() {
 }
 
 Silverplate.prototype.begin = function() {
-  window.onpopstate = function(e) {
+  window.onpopstate = (e) => {
     this.activate_card_or_page(e.state.source, e.state.anchor, true);
   };
 
